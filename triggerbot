@@ -79,10 +79,10 @@ local function triggerBot()
     end)
 end
 
--- Toggle trigger bot with a key (e.g., Y)
+-- Toggle trigger bot with a key (e.g., T)
 UserInputService.InputBegan:Connect(function(input, isProcessed)
     if isProcessed then return end
-    if input.KeyCode == Enum.KeyCode.Y then
+    if input.KeyCode == Enum.KeyCode.T then
         triggerBotEnabled = not triggerBotEnabled
         if triggerBotEnabled then
             createNotification("Trigger Bot: ON")
