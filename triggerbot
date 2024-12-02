@@ -1,0 +1,84 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local localPlayer = Players.LocalPlayer
+local mouse = localPlayer:GetMouse()
+
+local triggerBotEnabled = false -- Toggle for the trigger bot
+
+-- Notification Function
+local function createNotification(text)
+    local screenGui = Instance.new("ScreenGui")
+    local frame = Instance.new("Frame")
+    local label = Instance.new("TextLabel")
+
+    screenGui.Name = "TriggerBotNotification"
+    screenGui.ResetOnSpawn = false
+    screenGui.Parent = localPlayer:WaitForChild("PlayerGui")
+
+    frame.Name = "NotificationFrame"
+    frame.AnchorPoint = Vector2.new(1, 1)
+    frame.Position = UDim2.new(1, -20, 1, -20) -- Bottom right corner
+    frame.Size = UDim2.new(0, 200, 0, 50)
+    frame.BackgroundColor3 = Color3.new(0, 0, 0)
+    frame.BackgroundTransparency = 0.5
+    frame.BorderSizePixel = 0
+    frame.Parent = screenGui
+
+    label.Name = "NotificationLabel"
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.new(1, 1, 1)
+    label.Font = Enum.Font.SourceSansBold
+    label.TextSize = 18
+    label.Text = text
+    label.Parent = frame
+
+    -- Remove the notification after 3 seconds
+    task.delay(3, function()
+        screenGui:Destroy()
+    end)
+end
+
+-- Function to check if the target is a valid player
+local function isPlayerTarget(target)
+    if not target then return false end
+    local character = target:FindFirstAncestorWhichIsA("Model")
+    if character and character:FindFirstChild("Humanoid") and character ~= localPlayer.Character then
+        return true
+    end
+    return false
+end
+
+-- Trigger bot logic
+local function triggerBot()
+    RunService.RenderStepped:Connect(function()
+        if triggerBotEnabled then
+            local target = mouse.Target
+            if isPlayerTarget(target) then
+                mouse1press() -- Hold left mouse button down when targeting a player
+            else
+                mouse1release() -- Release left mouse button when not targeting
+            end
+        else
+            mouse1release() -- Ensure mouse button is released if the trigger bot is off
+        end
+    end)
+end
+
+-- Toggle trigger bot with a key (e.g., T)
+UserInputService.InputBegan:Connect(function(input, isProcessed)
+    if isProcessed then return end
+    if input.KeyCode == Enum.KeyCode.T then
+        triggerBotEnabled = not triggerBotEnabled
+        if triggerBotEnabled then
+            createNotification("Trigger Bot: ON")
+        else
+            createNotification("Trigger Bot: OFF")
+        end
+    end
+end)
+
+-- Start the trigger bot
+triggerBot()
