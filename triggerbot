@@ -36,7 +36,7 @@ local function createNotification(text)
     label.Parent = frame
 
     -- Remove the notification after 3 seconds
-    task.delay(5, function()
+    task.delay(3, function()
         screenGui:Destroy()
     end)
 end
@@ -53,16 +53,28 @@ end
 
 -- Trigger bot logic
 local function triggerBot()
+    -- We create a variable to store whether the mouse button is pressed or not
+    local mousePressed = false
+
     RunService.RenderStepped:Connect(function()
         if triggerBotEnabled then
             local target = mouse.Target
             if isPlayerTarget(target) then
-                mouse1press() -- Hold left mouse button down when targeting a player
+                if not mousePressed then
+                    mouse1press() -- Press left mouse button when targeting a player
+                    mousePressed = true
+                end
             else
-                mouse1release() -- Release left mouse button when not targeting
+                if mousePressed then
+                    mouse1release() -- Release left mouse button when not targeting a player
+                    mousePressed = false
+                end
             end
         else
-            mouse1release() -- Ensure mouse button is released if the trigger bot is off
+            if mousePressed then
+                mouse1release() -- Ensure mouse button is released if the trigger bot is off
+                mousePressed = false
+            end
         end
     end)
 end
