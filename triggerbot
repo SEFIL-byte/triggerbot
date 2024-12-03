@@ -6,6 +6,7 @@ local localPlayer = Players.LocalPlayer
 local mouse = localPlayer:GetMouse()
 
 local triggerBotEnabled = false -- Toggle for the trigger bot
+local toggleKey = Enum.KeyCode.T -- Default key to toggle trigger bot
 
 -- Notification Function
 local function createNotification(text)
@@ -53,9 +54,7 @@ end
 
 -- Trigger bot logic
 local function triggerBot()
-    -- We create a variable to store whether the mouse button is pressed or not
     local mousePressed = false
-
     RunService.RenderStepped:Connect(function()
         if triggerBotEnabled then
             local target = mouse.Target
@@ -79,16 +78,74 @@ local function triggerBot()
     end)
 end
 
--- Toggle trigger bot with a key (e.g., T)
+-- GUI for keybind change
+local gui = Instance.new("ScreenGui")
+local frame = Instance.new("Frame")
+local heading = Instance.new("TextLabel")
+local keybindLabel = Instance.new("TextLabel")
+local keybindInput = Instance.new("TextBox")
+
+gui.Name = "TriggerBotGui"
+gui.Parent = game.CoreGui
+
+frame.Name = "MainFrame"
+frame.Size = UDim2.new(0, 150, 0, 100)
+frame.Position = UDim2.new(0, 10, 0.5, -50) -- Left side, vertically centered
+frame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+frame.BorderSizePixel = 2
+frame.Active = true
+frame.Draggable = true -- Make the frame draggable
+frame.Parent = gui
+
+heading.Name = "Heading"
+heading.Size = UDim2.new(1, 0, 0.3, 0)
+heading.Position = UDim2.new(0, 0, 0, 0)
+heading.Text = "TriggerBot"
+heading.TextColor3 = Color3.new(1, 1, 1)
+heading.Font = Enum.Font.SourceSansBold
+heading.TextSize = 18
+heading.BackgroundTransparency = 1
+heading.Parent = frame
+
+keybindLabel.Name = "KeybindLabel"
+keybindLabel.Size = UDim2.new(0.8, 0, 0.3, 0)
+keybindLabel.Position = UDim2.new(0.1, 0, 0.4, 0)
+keybindLabel.Text = "Keybind:"
+keybindLabel.TextColor3 = Color3.new(1, 1, 1)
+keybindLabel.Font = Enum.Font.SourceSans
+keybindLabel.TextSize = 14
+keybindLabel.BackgroundTransparency = 1
+keybindLabel.Parent = frame
+
+keybindInput.Name = "KeybindInput"
+keybindInput.Size = UDim2.new(0.8, 0, 0.3, 0)
+keybindInput.Position = UDim2.new(0.1, 0, 0.7, 0)
+keybindInput.Text = "T"
+keybindInput.TextColor3 = Color3.new(1, 1, 1)
+keybindInput.Font = Enum.Font.SourceSans
+keybindInput.TextSize = 14
+keybindInput.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+keybindInput.ClearTextOnFocus = true
+keybindInput.Parent = frame
+
+-- GUI functionality
+keybindInput.FocusLost:Connect(function()
+    local newKey = keybindInput.Text:upper()
+    if Enum.KeyCode[newKey] then
+        toggleKey = Enum.KeyCode[newKey]
+        createNotification("Keybind Changed to: " .. newKey)
+    else
+        createNotification("Invalid Key")
+        keybindInput.Text = toggleKey.Name
+    end
+end)
+
+-- Toggle trigger bot with the key
 UserInputService.InputBegan:Connect(function(input, isProcessed)
     if isProcessed then return end
-    if input.KeyCode == Enum.KeyCode.T then
+    if input.KeyCode == toggleKey then
         triggerBotEnabled = not triggerBotEnabled
-        if triggerBotEnabled then
-            createNotification("Trigger Bot: ON")
-        else
-            createNotification("Trigger Bot: OFF")
-        end
+        createNotification("Trigger Bot: " .. (triggerBotEnabled and "ON" or "OFF"))
     end
 end)
 
